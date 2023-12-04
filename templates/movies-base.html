@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <meta name=author content="Scott Anderson Soo Bin Kim">
+    <title>Rate Movies</title>
+    <link rel='stylesheet' href="{{url_for('static', filename = 'movie-style.css')}}">
+    {% block head_stuff %} {% endblock %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+
+// Because I deploy my solution, I have to use Flask's url_for function here,
+// but I don't care what you name your function. So, in your code, you can delete
+// the line with the url_for in it, and use the line with the hard-coded URL.
+
+var url_for_ajax_login = "/set-UID-ajax/";
+
+// These are part of the REST API, so POST, GET, PUT, and DELETE all go to this URL
+// For the last three, the JavaScript code appends the TT before submitting
+
+var url_for_rating = "/rating/";
+
+// A global variable helpful for console.log messages when rating a movie.
+var uid = "{{uid}}";
+
+// True if progressive enhancement is on; initially off
+var progressive_on = false;
+
+    $(function () {
+        $("#progressive_enhancement").on('click', function () {
+            if(progressive_on) {
+                // turn it off
+                $("input[name=stars],input[type=submit]").show();
+                $("#progressive_enhancement").text('Turn on Progressive Enhancement');
+                progressive_on = false;
+            } else {
+                // turn it on
+                $("input[name=stars],input[type=submit]").hide();
+                $("#progressive_enhancement").text('Turn off Progressive Enhancement');
+                progressive_on = true;
+            }
+        });
+    });
+</script>
+<script src="{{url_for('static',filename='rate.js')}}"></script>
+</head>
+<body>
+    
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div id="flashes">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>    
+    {% endif %}
+{% endwith %}
+
+{% block main_content %}
+    <h1>Welcome!</h1>
+
+    <p>If you are seeing this message in your browser, you're rendering the wrong page. 
+       Render the rate-movies-list-sp22.html template.</p>
+
+{% endblock %}
+{% block tail %}
+{% endblock %}
+
+</body>
+</html>
