@@ -1,0 +1,11 @@
+body {
+    background-color:azure;
+}
+
+#flashes {
+    color: red;
+    border: solid red 2px;
+    padding-left: 1em;
+    font-size: large;
+}
+

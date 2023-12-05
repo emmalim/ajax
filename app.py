@@ -24,8 +24,10 @@ import cs304dbi as dbi
 
 # import cs304dbi_sqlite3 as dbi
 
+import requests
 import random
 import queries as queries
+
 app.secret_key = "your secret here"
 # replace that with a random key
 app.secret_key = "".join(
