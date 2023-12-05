@@ -106,6 +106,34 @@ def delete_all_ratings(tt):
     flash(f"All ratings for movie TT={tt} deleted successfully.")
     return redirect(url_for('index'))
 
+@app.route("/ajax-login/", methods=["POST"])
+def ajax_login():
+    """Ajax-style login route."""
+    to_uid = request.form.get('uid')
+
+    if not to_uid:
+        return jsonify({"error": "Enter a valid uid"})
+
+    session['uid'] = to_uid
+    return jsonify({"result": "ok"})
+
+@app.route("/rating/", methods=["POST"])
+def rate_movie():
+    """Route to post a new rating for a movie."""
+    if "uid" not in session:
+        return jsonify({"error": "You must be logged in to rate a movie."})
+
+    tt = request.form.get('tt')
+    stars = request.form.get('stars')
+    uid = session.get('uid')
+    urid = str(tt) + str(uid)
+
+    conn = dbi.connect()
+    queries.rate_movie(conn, urid, tt, uid, stars)
+    queries.calc_avg(conn, tt)
+
+    return jsonify({"result": "ok"})
+
 
 if __name__ == "__main__":
     import sys, os
