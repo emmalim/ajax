@@ -11,6 +11,7 @@ def get_all(conn):
     ''')
     return curs.fetchall()
 
+
 def delete_all_ratings(conn, tt):
     """deletes all ratings by user with specified uid for movie
         with specified tt"""
@@ -48,4 +49,32 @@ def calc_avg(conn, tt):
         UPDATE movie SET rating = (SELECT avg(score) from
         movie_viewer_rating where tt=%s) WHERE tt=%s
     ''', [tt, tt])
+    conn.commit()
+
+
+# for ajax --------------------------------------------------------
+def get_one(conn, urid):
+    '''returns urid, tt, uid, and rating of user's rating for movie'''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+        select urid, tt, uid, and rating from movie_viewer_rating
+        where urid=%s
+    ''',[urid])
+    return curs.fetchall()
+
+def get_avg(conn, tt):
+    '''returns average score for movie with specified tt'''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+        select avg(score) as avg from movie_viewer_rating where
+        tt=%s
+    ''', [tt])
+    return curs.fetchone()
+
+def delete_one(conn, urid):
+    '''deletes movie rating with given urid value'''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+        delete from movie_viewer_ratings where urid=%s
+    ''', [urid])
     conn.commit()

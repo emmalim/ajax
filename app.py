@@ -54,7 +54,8 @@ def index():
     uid = session.get('uid', None)
     
     #print(all_movies)
-    return render_template("rate-movies-list-sp22.html", title="Main Page", uid=uid, movies=all_movies)
+    return render_template("rate-movies-list-sp22.html", 
+        title="Main Page", uid=uid, movies=all_movies)
 
 
 @app.route("/set-UID/", methods=["POST"])
@@ -66,8 +67,8 @@ def set_UID():
     if not uid:
         flash("Enter a valid uid")
 
-    session['uid'] = uid
 
+    session['uid'] = uid
     print("uid====" + str(uid))
     print("session's uid====" + str(session['uid']))
     return redirect(url_for("index"))
@@ -106,20 +107,30 @@ def delete_all_ratings(tt):
     flash(f"All ratings for movie TT={tt} deleted successfully.")
     return redirect(url_for('index'))
 
-@app.route("/ajax-login/", methods=["POST"])
-def ajax_login():
-    """Ajax-style login route."""
+# ----------------------------------------------------------------------------
+# ---- ajax routes -----------------------------------------------------------
+# ----------------------------------------------------------------------------
+
+@app.route("/set-UID-ajax/", methods=["POST"])
+def set_UID_ajax():
+    """Ajax-style login route that returns jsonified dictionary
+        with key uid and the user's uid as the value"""
     to_uid = request.form.get('uid')
 
     if not to_uid:
         return jsonify({"error": "Enter a valid uid"})
 
+    print("ajax-login uid====" + str(to_uid))
     session['uid'] = to_uid
-    return jsonify({"result": "ok"})
+    
+    return jsonify({'error': False})
+
 
 @app.route("/rating/", methods=["POST"])
 def rate_movie():
-    """Route to post a new rating for a movie."""
+    """Route to post a new rating for a movie that returns
+        a JSON dict that has the new average rating of this
+        movie"""
     if "uid" not in session:
         return jsonify({"error": "You must be logged in to rate a movie."})
 
@@ -132,7 +143,50 @@ def rate_movie():
     queries.rate_movie(conn, urid, tt, uid, stars)
     queries.calc_avg(conn, tt)
 
-    return jsonify({"result": "ok"})
+    avg = float(queries.get_avg(conn,tt)['avg'])
+
+    return jsonify({'tt': tt, 'stars': stars, 'avg': avg}) 
+
+
+@app.route("/rating/<tt>", methods=["GET", "PUT", "DELETE"])
+def ajax_rating(tt):
+    """Returns a JSON dictionary that has the current
+        average rating for the movie with the specified tt"""
+    if "uid" not in session:
+        return jsonify({"error": "You must be logged in to rate a movie."})
+    
+    conn = dbi.connect()
+    uid = session.get('uid')
+    stars = request.form.get('stars')
+    urid = str(tt) + str(uid)
+    print(urid)
+
+    if request.method == "GET":
+        # Returns a JSON dictionary that has the current average rating
+        # for the movie with the specified tt
+        avg = float(queries.get_avg(conn, tt)['avg'])
+        return jsonify({"tt": tt, "avg": avg })
+
+    elif request.methods == "PUT":
+    #     # replaces this user's rating of this movie and  
+    #     # returns the usual JSON dict
+        prev = queries.get_one(conn, urid)
+        if 'urid' not in prev:
+            return jsonify({"error": 'You have not rated this movie yet'})
+
+        queries.rate_movie(conn, urid, tt, uid, stars)
+        queries.calc_avg(conn, tt)
+
+        avg = float(queries.get_avg(conn,tt)['avg'])
+
+        return jsonify({'tt': tt, 'stars': stars, 'avg': avg}) 
+
+    elif request.methods == "DELETE":
+        """ deletes this user's rating of this movie and 
+        returns usual JSON dict """
+        queries.delete_one(conn, urid)
+        return jsonify({"tt": tt, "stars": 0, "avg": avg })
+
 
 
 if __name__ == "__main__":

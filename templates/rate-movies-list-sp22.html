@@ -1,10 +1,8 @@
 {% extends "movies-base.html" %}
+
 {% block main_content %}
 
-
-
-
-<h2>Logged in as User <span id="login_uid">{{uid}}</span></h2>
+<h2>Logged in as User <span id="login_uid">{{ uid }}</span></h2>
 
 <p>This form stands in for a "real" login form that would have both a
 userID and a password, and would check the password against encrypted
@@ -13,13 +11,16 @@ work: try your own, or any small integer.</p>
 <p>Your back-end will support both old-fashioned non-Ajax logins and
 Ajax logins. The two buttons submit to different back-end routes.</p>
 
-<form id="login_form" method="post" action="{{url_for('set_UID')}}">
-    <p><label>userid: <input type="text" name="uid" placeholder="12"></label></p>
-    <p><input type="submit" value="submit">
-        <input type="button" id="ajax_login" value="submit via Ajax"></p>
+<!-- login form -->
+<form id="login_form" method="post" action="/set-UID/">
+    <p><label>uid: <input type="text" name="uid" placeholder="12"></label></p>
+    <p>
+        <input type="submit" value="submit">
+        <input type="button" id="ajax_login" value="submit via Ajax">
+    </p>
 </form>
 
-<p>This application is rating movies in the <strong>{{database}}</strong> database.</p>
+<p>This application is rating movies in the database.</p>
 
 <p>This button turns on/off all the JavaScript:
     <button id="progressive_enhancement">Turn On Progressive Enhancement</button></p>
