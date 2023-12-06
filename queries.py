@@ -57,7 +57,7 @@ def get_one(conn, urid):
     '''returns urid, tt, uid, and rating of user's rating for movie'''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        select urid, tt, uid, and rating from movie_viewer_rating
+        select urid, tt, uid, score from movie_viewer_rating
         where urid=%s
     ''',[urid])
     return curs.fetchall()
@@ -75,6 +75,6 @@ def delete_one(conn, urid):
     '''deletes movie rating with given urid value'''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        delete from movie_viewer_ratings where urid=%s
+        delete from movie_viewer_rating where urid=%s
     ''', [urid])
     conn.commit()

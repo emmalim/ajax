@@ -159,33 +159,41 @@ def ajax_rating(tt):
     uid = session.get('uid')
     stars = request.form.get('stars')
     urid = str(tt) + str(uid)
-    print(urid)
+    print("URID=====" + str(urid))
+    print(queries.get_avg(conn,tt))
 
     if request.method == "GET":
         # Returns a JSON dictionary that has the current average rating
         # for the movie with the specified tt
+        queries.calc_avg(conn, tt)
         avg = float(queries.get_avg(conn, tt)['avg'])
+        print("GET === " + str(avg))
         return jsonify({"tt": tt, "avg": avg })
 
-    elif request.methods == "PUT":
-    #     # replaces this user's rating of this movie and  
-    #     # returns the usual JSON dict
+    elif request.method == "PUT":
+        # replaces this user's rating of this movie and  
+        # returns the usual JSON dict
         prev = queries.get_one(conn, urid)
         if 'urid' not in prev:
             return jsonify({"error": 'You have not rated this movie yet'})
 
         queries.rate_movie(conn, urid, tt, uid, stars)
         queries.calc_avg(conn, tt)
-
+        
+        print(queries.get_avg(conn,tt))
         avg = float(queries.get_avg(conn,tt)['avg'])
+        print("PUT ===== " + str(avg))
+
 
         return jsonify({'tt': tt, 'stars': stars, 'avg': avg}) 
-
-    elif request.methods == "DELETE":
-        """ deletes this user's rating of this movie and 
-        returns usual JSON dict """
+ 
+    elif request.method == "DELETE":
+        # deletes this user's rating of this movie and 
+        # returns usual JSON dict
         queries.delete_one(conn, urid)
-        return jsonify({"tt": tt, "stars": 0, "avg": avg })
+        avg = float(queries.get_avg(conn,tt)['avg'])
+        print("DELETE === " + str(avg))
+        return jsonify({"tt": tt, "avg": avg })
 
 
 
