@@ -54,7 +54,8 @@ def calc_avg(conn, tt):
 
 # for ajax --------------------------------------------------------
 def get_one(conn, urid):
-    '''returns urid, tt, uid, and rating of user's rating for movie'''
+    '''takes in conn and urid and
+        returns urid, tt, uid, and rating of user's rating for movie'''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
         select urid, tt, uid, score from movie_viewer_rating
@@ -63,7 +64,8 @@ def get_one(conn, urid):
     return curs.fetchall()
 
 def get_avg(conn, tt):
-    '''returns average score for movie with specified tt'''
+    '''takes in conn and movie tt
+        returns average score for movie with specified tt'''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
         select avg(score) as avg from movie_viewer_rating where
@@ -72,9 +74,26 @@ def get_avg(conn, tt):
     return curs.fetchone()
 
 def delete_one(conn, urid):
-    '''deletes movie rating with given urid value'''
+    '''takes in conn, urid and
+        deletes movie rating with given urid value'''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
         delete from movie_viewer_rating where urid=%s
     ''', [urid])
     conn.commit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -61,12 +61,10 @@ def index():
 @app.route("/set-UID/", methods=["POST"])
 def set_UID():
     '''logs the user in'''
-
     uid = request.form.get('uid')
 
     if not uid:
         flash("Enter a valid uid")
-
 
     session['uid'] = uid
     print("uid====" + str(uid))
@@ -155,12 +153,13 @@ def ajax_rating(tt):
     if "uid" not in session:
         return jsonify({"error": "You must be logged in to rate a movie."})
     
+    # user is logged in
     conn = dbi.connect()
     uid = session.get('uid')
     stars = request.form.get('stars')
     urid = str(tt) + str(uid)
-    print("URID=====" + str(urid))
-    print(queries.get_avg(conn,tt))
+
+    # print(str(request.method) + " --------- OUTSIDE OF CONDITIONALS ========== " + str(queries.get_avg(conn,tt)))
 
     if request.method == "GET":
         # Returns a JSON dictionary that has the current average rating
@@ -173,17 +172,12 @@ def ajax_rating(tt):
     elif request.method == "PUT":
         # replaces this user's rating of this movie and  
         # returns the usual JSON dict
-        prev = queries.get_one(conn, urid)
-        if 'urid' not in prev:
-            return jsonify({"error": 'You have not rated this movie yet'})
+        if "uid" not in session:
+            return jsonify({"error": "You must be logged in to rate a movie."})
 
         queries.rate_movie(conn, urid, tt, uid, stars)
         queries.calc_avg(conn, tt)
-        
-        print(queries.get_avg(conn,tt))
         avg = float(queries.get_avg(conn,tt)['avg'])
-        print("PUT ===== " + str(avg))
-
 
         return jsonify({'tt': tt, 'stars': stars, 'avg': avg}) 
  
@@ -194,6 +188,7 @@ def ajax_rating(tt):
         avg = float(queries.get_avg(conn,tt)['avg'])
         print("DELETE === " + str(avg))
         return jsonify({"tt": tt, "avg": avg })
+
 
 
 
